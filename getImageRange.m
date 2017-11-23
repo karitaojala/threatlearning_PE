@@ -1,8 +1,11 @@
-function im_range = getImageRange(nu_blocks,subj)
+function im_range = getImageRange(subj)
 
+nu_blocks = 6;
+
+% Initial image number
 ini = 4;
 
-% Some exceptions
+% Exceptions
 if strcmp(char(subj), 'PR02010_VF180893_20160803_123831155')
     ini = 5;
 elseif strcmp(char(subj), 'PR02011_LF051093_20160803_141032179')
@@ -15,6 +18,7 @@ end
 % For every block 3 EPIs
 im_range = ini:3:(ini+3*(nu_blocks-1));
 
+% Exceptions
 if strcmp(char(subj), 'PR02012_MC030192_20160803_164430287')
     im_range = [4 7 10 13 16 22];
 elseif strcmp(char(subj), 'PR02013_MR211196_20160803_181918050')

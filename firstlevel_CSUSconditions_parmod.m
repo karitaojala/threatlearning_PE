@@ -25,26 +25,26 @@ subj      = subj(not(cellfun('isempty', strfind(subj,'PR'))));
 subj_beh  = [155 159:162 164:167 169:177 179:182];
 
 % Number of blocks
-nu_blocks = 6; % All blocks
-blocks = 1:nu_blocks;
+no_runs = 6; % All blocks
+runs = 1:no_runs;
 
 % Phase information
 if phase == 1
-    blockname = 'Acq';
-    blocks = blocks(1); % Take only first acquisition block
+    phasename = 'Acq';
+    runs = runs(1); % Take only first acquisition block
 elseif phase == 2
-    blockname = 'Maint';
-    blocks = blocks(2:5); % Take only maintenance blocks
+    phasename = 'Maint';
+    runs = runs(2:5); % Take only maintenance blocks
 elseif phase == 3
-    blockname = 'Acq2';
-    blocks = blocks(6); % Take only last acquisition block
+    phasename = 'Acq2';
+    runs = runs(6); % Take only last acquisition block
 elseif phase == 4
-    blockname = 'AllPhases'; % All phases and blocks in the same model
+    phasename = 'AllPhases'; % All phases and blocks in the same model
 elseif phase == 5
-    blockname = 'BothAcq'; % Acquisition phases together
-    blocks = blocks([1 6]);
+    phasename = 'BothAcq'; % Acquisition phases together
+    runs = runs([1 6]);
 elseif phase == 6
-    blockname = 'AllPhases_Scaled'; % All phases and blocks in the same model, scaled according to block length
+    phasename = 'AllPhases_Scaled'; % All phases and blocks in the same model, scaled according to block length
 else
     error('Invalid phase number.')
 end
@@ -59,7 +59,7 @@ for subInd = 1:length(subj)
     cd(fpath)
     
     % 1st level path
-    fpath_first = fullfile(fpath, modelname, ['First_Level_' blockname]);
+    fpath_first = fullfile(fpath, modelname, ['First_Level_' phasename]);
     
     % Create the folder if does not exist
     if ~exist(fpath_first, 'dir')
@@ -67,19 +67,19 @@ for subInd = 1:length(subj)
     end
     
     % Range of images for EPIs (in the the file name)
-    im_range = getImageRange(nu_blocks,subj(subInd));
+    im_range = getImageRange(subj(subInd));
 
     %% Specify 1st level model
     sesi = 0; % Session (phase) index for matlabbatch
     
-    for block = blocks
+    for run = runs
         
         clear EPI episcans
         
         sesi = sesi + 1; % Increase session number
         
         % Volume number for the current block
-        volno = num2str(im_range(block));
+        volno = num2str(im_range(run));
         if length(volno) < 2
             volno = ['0' volno]; %#ok<AGROW>
         end
@@ -97,19 +97,19 @@ for subInd = 1:length(subj)
         if noisecorr == 1 % Only head motion
             noisefile = ls([EPIpath, '*abc*', volno, 'a001.txt']); % Bias corrected
         elseif noisecorr == 2 % RETROICOR
-            noisefile = ls([EPIpath, 'multiple_regressors_session', num2str(block), '.txt']); % CHECK THAT CORRECT
+            noisefile = ls([EPIpath, 'multiple_regressors_session', num2str(run), '.txt']); % CHECK THAT CORRECT
         elseif noisecorr == 3 % Full PhysIO
-            noisefile = ls([EPIpath, 'multiple_regressors_session', num2str(block), '.txt']);
+            noisefile = ls([EPIpath, 'multiple_regressors_session', num2str(run), '.txt']);
         end
         
-        disp(['...Block ' num2str(block), ' out of ' num2str(length(im_range)), '. Found ', num2str(epino), ' EPIs...' ])
+        disp(['...Run ' num2str(run), ' out of ' num2str(length(im_range)), '. Found ', num2str(epino), ' EPIs...' ])
         disp(['Found ', num2str(size(noisefile,1)), ' noise correction file(s).'])
         disp('................................')
       
         % Conditions
         % -----------------------------------------------------------------
         % Multiple conditions file created with preparebehav
-        condfile = fullfile(fpath1, 'Behavior', ['S' num2str(subj_beh(subInd))], ['S' num2str(subj_beh(subInd)) '_block' num2str(block) '_CSUSconds_' modelfile '.mat']);
+        condfile = fullfile(fpath1, 'Behavior', ['S' num2str(subj_beh(subInd))], ['S' num2str(subj_beh(subInd)) '_block' num2str(run) '_CSUSconds_' modelfile '.mat']);
         
         % Matlabbatch
         matlabbatch{1}.spm.stats.fmri_spec.sess(sesi).scans = episcans';
