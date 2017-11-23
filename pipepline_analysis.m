@@ -140,7 +140,7 @@ if run_fmri1stlvl
             if m == 1 % Axiomatic categorical model
                 firstlevel_CSUSconditions_physcorr(p)
             else % Parametric models
-                firstlevel_CSUSconditions_parmod(mainpath,fpath,m,p)
+                firstlevel_CSUSconditions_parmod(mainpath,fpath,m,p,noisecorr)
             end
         end
         

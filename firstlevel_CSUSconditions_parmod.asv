@@ -3,8 +3,8 @@ function firstlevel_CSUSconditions_parmod(fpath1,subpath,model,phase,noisecorr)
 %% Initialize variables and folders
 
 if model == 2
-    modelfile = 'parmod1'; % In the behavioural file name
-    modelname = 'Model_Par_1'; % Model folder name
+    modelfile = 'parmod1';
+    modelname = 'Model_Par_1';
 elseif model == 3
     modelfile = 'parmod1b';
     modelname = 'Model_Par_1b';
@@ -28,7 +28,6 @@ subj_beh  = [155 159:162 164:167 169:177 179:182];
 nu_blocks = 6; % All blocks
 blocks = 1:nu_blocks;
 
-% Phase information
 if phase == 1
     blockname = 'Acq';
     blocks = blocks(1); % Take only first acquisition block
@@ -49,39 +48,33 @@ else
     error('Invalid phase number.')
 end
 
-% Loop over subjects (1st level analysis for each subject separately)
 for subInd = 1:length(subj)
     
     clear matlabbatch
-    
-    % Subject's path
+        
     fpath = fullfile(subpath, char(subj(subInd)));
     cd(fpath)
     
-    % 1st level path
     fpath_first = fullfile(fpath, modelname, ['First_Level_' blockname]);
-    
-    % Create the folder if does not exist
     if ~exist(fpath_first, 'dir')
         mkdir(fpath_first)
     end
     
-    % Range of images for EPIs (in the the file name)
     im_range = getImageRange(nu_blocks,subj(subInd));
 
     %% Specify 1st level model
-    sesi = 0; % Session (phase) index for matlabbatch
+    sesi = 0; % Session index for matlabbatch
     
-    for block = blocks
+    for block = blocks %length(im_range)
         
         clear EPI episcans
         
-        sesi = sesi + 1; % Increase session number
+        sesi = sesi + 1;
         
         % Volume number for the current block
         volno = num2str(im_range(block));
         if length(volno) < 2
-            volno = ['0' volno]; %#ok<AGROW>
+            volno = ['0', volno];
         end
         
         % Select EPI files
@@ -90,14 +83,14 @@ for subInd = 1:length(subj)
         EPI.epiFiles = spm_vol(spm_select('ExtList',fullfile(fpath,'EPI'),['^swuabc2.*0',volno,'a001.nii$'])); % Bias corrected EPIs
         
         for epino = 1:size(EPI.epiFiles,1)
-            episcans{epino} = [EPI.epiFiles(epino).fname, ',',num2str(epino)]; %#ok<AGROW>
+            episcans{epino} = [EPI.epiFiles(epino).fname, ',',num2str(epino)];
         end
         
         % Noise correction files
         if noisecorr == 1 % Only head motion
             noisefile = ls([EPIpath, '*abc*', volno, 'a001.txt']); % Bias corrected
         elseif noisecorr == 2 % RETROICOR
-            noisefile = ls([EPIpath, 'multiple_regressors_session', num2str(block), '.txt']); % CHECK THAT CORRECT
+            noisefile = ls([EPIpath, 'multiple_regressors_session', num2str(block), '.txt']); % CH
         elseif noisecorr == 3 % Full PhysIO
             noisefile = ls([EPIpath, 'multiple_regressors_session', num2str(block), '.txt']);
         end
@@ -124,8 +117,8 @@ for subInd = 1:length(subj)
     matlabbatch{1}.spm.stats.fmri_spec.dir = {fpath_first};
     matlabbatch{1}.spm.stats.fmri_spec.timing.units = 'secs';
     matlabbatch{1}.spm.stats.fmri_spec.timing.RT = 3.2;
-    matlabbatch{1}.spm.stats.fmri_spec.timing.fmri_t = 40;
-    matlabbatch{1}.spm.stats.fmri_spec.timing.fmri_t0 = 20;
+    matlabbatch{1}.spm.stats.fmri_spec.timing.fmri_t = 40; % 16
+    matlabbatch{1}.spm.stats.fmri_spec.timing.fmri_t0 = 20; % 8
     
     matlabbatch{1}.spm.stats.fmri_spec.fact = struct('name', {}, 'levels', {});
     matlabbatch{1}.spm.stats.fmri_spec.bases.hrf.derivs = [0 0];
