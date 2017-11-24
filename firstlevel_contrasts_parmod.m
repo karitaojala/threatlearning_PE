@@ -1,4 +1,4 @@
-function firstlevel_contrasts_parmod(subpath,phasename)
+function firstlevel_contrasts_parmod(subpath,model,phasename)
 
 %% Initialize variables and folders
 
@@ -60,8 +60,11 @@ for subInd = 1:length(subj)
     
     for con = 1:no_contr
         
+        conweights = zeros(no_contr,1);
+        conweights(con) = 1;
+        
         matlabbatch{1}.spm.stats.con.consess{con}.tcon.name = connames{con};
-        matlabbatch{1}.spm.stats.con.consess{con}.tcon.weights = 1;
+        matlabbatch{1}.spm.stats.con.consess{con}.tcon.weights = conweights;
         matlabbatch{1}.spm.stats.con.consess{con}.tcon.sessrep = 'replsc'; % Contrasts are replicated and scaled across runs
         matlabbatch{1}.spm.stats.con.delete = 1;
         
